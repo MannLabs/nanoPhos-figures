@@ -9,9 +9,13 @@ Communications*).
 ```bash
 git clone https://github.com/DenysOliinyk3007/nanoPhos-figures.git
 cd nanoPhos-figures
-python -m venv .venv && source .venv/bin/activate     # Windows: .venv\Scripts\activate
+python -m venv .venv && source .venv/bin/activate     # Python 3.11; Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 ```
+
+Figure 4i (limma) also needs R (tested with 4.5.2) and the Bioconductor package `limma`
+(`BiocManager::install("limma")`), which the code calls through `rpy2`. On Windows, start
+Jupyter from cmd or PowerShell, not Git Bash, because rpy2 cannot locate R from Git Bash.
 
 Then set up the data layout (all paths in the notebooks are relative to the repo root):
 
@@ -21,8 +25,9 @@ pride_data/     <- extract the MassIVE deposit here, preserving its structure
                     FASTA, proteome, aq_out results, …)
 data/           <- committed reference data (funscores, mouse_kegg_annotation,
                    *_conditionSetup.tsv) — already in the repo
-tables/         <- committed manuscript tables (Supplementary_Table_3, etc.) — in the repo
+tables/         <- committed manuscript tables (Supplementary_Table_3, Supplementary Data 1-2, …)
 figures/        <- figure outputs, created automatically on run
+source_data/    <- per-panel source data (MetaInfo workbook), created automatically on run
 ```
 
 Open a figure notebook and **Restart → Run All** (launch Jupyter from the repo root
@@ -30,6 +35,7 @@ so the relative data paths resolve; the notebooks also self-correct their workin
 directory if opened from inside `notebooks/`):
 
 ```bash
+pip install jupyterlab      # or open the notebooks in any IDE with a Jupyter kernel
 jupyter lab notebooks/nanoPhos_Figure2.ipynb
 ```
 
@@ -42,21 +48,25 @@ All reproduction notebooks live in [`notebooks/`](notebooks/):
   (probability ≥ 0.75), used for the *Nature Communications* revision. These reproduce
   the published main and supplementary figures.
 
-Exploratory and superseded notebooks — the original-submission (`v00`) versions and a
-DIA-NN cross-search comparison that is **not** part of the final manuscript — are
-retained locally under `archive/` and are not version-controlled.
+The DIA-NN vs Spectronaut comparison (Supplementary Figure 3i–l) is part of
+`nanoPhos_Suppl_Figure3.ipynb`. It reads the DIA-NN reports from
+`pride_data/analysis_data/revision/figure3/diann/`; the README in that folder of the
+deposit describes the search settings.
+
+Exploratory and superseded notebooks, including the original-submission (`v00`)
+versions, are kept locally under `archive/` and are not version-controlled.
 
 ## Repository layout
 
 | Path | Contents |
 |---|---|
-| `src/` | Production Python modules: `core` (Class I collapse), `analytics_core_V04`, `limma_utils`, `PeptideCollapse_v4`, `alphaPhosHelperFunctions` |
+| `src/` | Production Python modules: `core` (Class I collapse), `analytics_core_V04`, `limma_utils`, `PeptideCollapse_v4`, `alphaPhosHelperFunctions`, `decoupling_preprocess` (Suppl. Fig. 2), `metainfo_export` (source data), `supplementary_data` (Supplementary Data 1–2) |
 | `docs/` | `REPO_STRUCTURE.md`, changelogs, manuscript context |
 | `data/` | Small reference CSVs cited by individual figures |
-| `raw_data/` | Spectronaut DIA exports (gitignored, large) |
+| `pride_data/` | Search-engine reports from the data deposit (gitignored, large) |
 | `archive/` | Older versions, exploratory notebooks, deprecated work (gitignored) |
 | `notebooks/` | Reproduction notebooks: one per main figure (`nanoPhos_Figure{2–5}.ipynb`) and per supplementary figure (`nanoPhos_Suppl_Figure{1–5}.ipynb`), revised analysis |
-| `tables/` | Committed manuscript tables (`Supplementary_Table_3.xlsx`, hydrophobic-peptide supplementary table) |
+| `tables/` | Committed manuscript tables (`Supplementary_Table_3.xlsx`, hydrophobic-peptide supplementary table, `Supplementary_Data_1.xlsx`, `Supplementary_Data_2.xlsx`) |
 
 > **Note:** `src/alphaquant/` and `docs/phosphonetworks/` are large vendored/reference
 > trees and are gitignored. AlphaQuant installs from PyPI via `requirements.txt`.
@@ -83,10 +93,24 @@ available for direct A/B comparison.
 ## Reproducing the figures
 
 Each figure notebook is self-contained. `Restart → Run All` regenerates panel-level
-outputs given a populated `raw_data/` and the dependencies in `requirements.txt`.
+outputs given a populated `pride_data/` and the dependencies in `requirements.txt`.
 The first cells of each notebook set the working directory to the repo root and
 prepend `src/` to `sys.path`, so the bare module imports below them resolve to the
-production code under `src/`.
+production code under `src/`. The last cell of each notebook writes the plotted data of
+every panel to `source_data/MetaInfo_figures_checklist_v05.xlsx` (one sheet per panel).
+
+To run all notebooks without opening them, from the repo root:
+
+```bash
+for nb in notebooks/*.ipynb; do python -m nbconvert --to notebook --execute --output-dir executed "$nb"; done
+```
+
+Some steps read precomputed results from the deposit by default. A `REGENERATE` /
+`RERUN_AQ` flag at the top of the cell recomputes them: AlphaQuant results (Suppl.
+Fig. 1o and 5d) and the decoupling summary tables in `data/decoupling_*.csv` (Suppl.
+Fig. 2).
+
+Supplementary Data 1 and 2 are rebuilt with `python src/supplementary_data.py`.
 
 ## Citation
 

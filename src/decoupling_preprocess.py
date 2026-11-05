@@ -246,13 +246,23 @@ def dilution_linearity(cls: dict):
     return pd.DataFrame(summ), pd.concat(site_frames, ignore_index=True)
 
 
+def _median_cv_pct(Q: pd.DataFrame) -> float:
+    """Median linear-space CV (%) over sites quantified in every column of Q."""
+    full = Q.dropna()
+    return (full.std(axis=1, ddof=1) / full.mean(axis=1) * 100).median()
+
+
 def completeness_cv(cls: dict):
     """Per (branch, input) data completeness and replicate CV of Class I intensities.
 
     completeness = mean fraction of replicates in which a detected site is quantified.
     CV = median linear-space CV across replicates for sites present in ALL replicates.
+
+    Returns (summary_df, loo_df). loo_df holds, for every replicate, the median CV
+    recomputed without it (sites present in all remaining replicates), which shows how
+    much a single replicate drives the per-input median CV.
     """
-    rows = []
+    rows, loo_rows = [], []
     for b in BRANCH_ORDER:
         for ng in INPUT_ORDER:
             if (b, ng) not in cls:
@@ -267,7 +277,11 @@ def completeness_cv(cls: dict):
                          'pct_sites_in_all_reps': round((filled == nrep).mean() * 100, 1),
                          'n_full_sites': int(len(full)),
                          'median_CV_pct': round(cv.median(), 1)})
-    return pd.DataFrame(rows)
+            for run in Q.columns:
+                loo_rows.append({'branch': b, 'input_ng': ng, 'left_out_run': run,
+                                 'left_out_well': run.split('_')[-1],
+                                 'median_CV_pct_without': round(_median_cv_pct(Q.drop(columns=run)), 1)})
+    return pd.DataFrame(rows), pd.DataFrame(loo_rows)
 
 
 def site_overlap(cls: dict, inputs=(100, 1000)):
@@ -312,15 +326,17 @@ def _gravy(seq: str):
 def phospho_signal_rt_quality(prec: dict, rt_bins=None):
     """Per (branch, input) phosphopeptide-precursor signal, RT profile and quality.
 
-    Returns (signal_df, rt_df):
+    Returns (signal_df, rt_df, signal_perrun_df):
       signal_df: total & median phospho-precursor intensity, dynamic range (log10 p5-p95),
                  localization (median EG.PTMAssayProbability, %>=0.9), GRAVY (median,
                  %hydrophobic) per (branch, input).
       rt_df:     summed phospho intensity per 0.5-min EG.ApexRT bin (mean over replicates).
+      signal_perrun_df: summed phospho-precursor intensity per run (the replicate values
+                 behind signal_df's phospho_sum_mean / phospho_sum_sd).
     """
     if rt_bins is None:
         rt_bins = np.arange(4, 16.01, 0.5)
-    sig_rows, rt_rows = [], []
+    sig_rows, rt_rows, run_rows = [], [], []
     cols = ['R.FileName', 'EG.ModifiedSequence', 'PEP.StrippedSequence',
             'EG.ApexRT', 'EG.PTMAssayProbability', 'EG.TotalQuantity (Settings)']
     for b in BRANCH_ORDER:
@@ -349,13 +365,15 @@ def phospho_signal_rt_quality(prec: dict, rt_bins=None):
                 'gravy_median': round(gv.median(), 3),
                 'gravy_pct_hydrophobic': round((gv > 0).mean() * 100, 1),
             })
+            for run, v in g.sum().items():
+                run_rows.append({'branch': b, 'input_ng': ng, 'run': run, 'phospho_sum': v})
             dd = d.dropna(subset=['rt', 'q']).copy()
             dd['bin'] = pd.cut(dd['rt'], rt_bins, labels=rt_bins[:-1] + 0.25)
             prof = (dd.groupby(['R.FileName', 'bin'], observed=True)['q'].sum()
                       .reset_index().groupby('bin', observed=True)['q'].mean())
             for bc, val in prof.items():
                 rt_rows.append({'branch': b, 'input_ng': ng, 'rt_bin': float(bc), 'phospho_sum_mean': val})
-    return pd.DataFrame(sig_rows), pd.DataFrame(rt_rows)
+    return pd.DataFrame(sig_rows), pd.DataFrame(rt_rows), pd.DataFrame(run_rows)
 
 
 # ---------------------------------------------------------------------------
@@ -375,9 +393,9 @@ def regenerate_all(folder: str, out_dir: str) -> dict:
     summ = summarize(perrun)
     contr = contrasts(perrun)
     lin_summary, lin_sites = dilution_linearity(cls)
-    comp_cv = completeness_cv(cls)
+    comp_cv, cv_loo = completeness_cv(cls)
     overlap = site_overlap(cls)
-    signal, rt_profile = phospho_signal_rt_quality(prec)
+    signal, rt_profile, signal_perrun = phospho_signal_rt_quality(prec)
 
     tables = {
         'decoupling_perrun': perrun,
@@ -386,8 +404,10 @@ def regenerate_all(folder: str, out_dir: str) -> dict:
         'decoupling_linearity_summary': lin_summary,
         'decoupling_linearity_sites': lin_sites,
         'decoupling_completeness_cv': comp_cv,
+        'decoupling_cv_loo': cv_loo,
         'decoupling_overlap': overlap,
         'decoupling_signal': signal,
+        'decoupling_signal_perrun': signal_perrun,
         'decoupling_rt_profile': rt_profile,
     }
     for name, tbl in tables.items():
@@ -399,6 +419,6 @@ def load_tables(out_dir: str) -> dict:
     """Read the committed decoupling result CSVs from ``out_dir`` (REGENERATE=False path)."""
     names = ['decoupling_perrun', 'decoupling_summary', 'decoupling_contrasts',
              'decoupling_linearity_summary', 'decoupling_linearity_sites',
-             'decoupling_completeness_cv', 'decoupling_overlap',
-             'decoupling_signal', 'decoupling_rt_profile']
+             'decoupling_completeness_cv', 'decoupling_cv_loo', 'decoupling_overlap',
+             'decoupling_signal', 'decoupling_signal_perrun', 'decoupling_rt_profile']
     return {n: pd.read_csv(os.path.join(out_dir, f'{n}.csv')) for n in names}

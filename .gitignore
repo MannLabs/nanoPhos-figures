@@ -5,6 +5,7 @@ raw_data/
 processed_data/
 archive/
 cc_runs/
+source_data/
 
 # --- Python venv living at repo root (this directory IS a venv) ---
 Include/
