@@ -110,7 +110,8 @@ Some steps read precomputed results from the deposit by default. A `REGENERATE` 
 Fig. 1o and 5d) and the decoupling summary tables in `data/decoupling_*.csv` (Suppl.
 Fig. 2).
 
-Supplementary Data 1 and 2 are rebuilt with `python src/supplementary_data.py`.
+Supplementary Data 1 and 2 are rebuilt with `python src/supplementary_data.py`, and
+Supplementary Table 2 (SIGNOR EGFR-pathway coverage) with `python src/signor_coverage.py`.
 
 ## Citation
 
