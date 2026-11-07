@@ -1,13 +1,12 @@
 # nanoPhos
 
 Phosphoproteomics workflow for nanogram-scale inputs. Analysis code and figure
-notebooks for the nanoPhos manuscript (Oliinyk et al., in revision at *Nature
-Communications*).
+notebooks for the nanoPhos manuscript (Oliinyk et al.).
 
 ## Quick start
 
 ```bash
-git clone https://github.com/DenysOliinyk3007/nanoPhos-figures.git
+git clone https://github.com/MannLabs/nanoPhos-figures.git
 cd nanoPhos-figures
 python -m venv .venv && source .venv/bin/activate     # Python 3.11; Windows: .venv\Scripts\activate
 pip install -r requirements.txt
@@ -20,9 +19,9 @@ Jupyter from cmd or PowerShell, not Git Bash, because rpy2 cannot locate R from 
 Then set up the data layout (all paths in the notebooks are relative to the repo root):
 
 ```
-pride_data/     <- extract the MassIVE deposit here, preserving its structure
-                   (pride_data/analysis_data/..., incl. .../revision/figureN/ reports,
-                    FASTA, proteome, aq_out results, …)
+pride_data/     <- the analysis/ and metadata/ folders of the MassIVE deposit, unchanged
+                   (pride_data/analysis/<figure2|figure3|figure4|figure5|suppl_figure2>/,
+                    pride_data/metadata/fasta/); gitignored
 data/           <- committed reference data (funscores, mouse_kegg_annotation,
                    *_conditionSetup.tsv) — already in the repo
 tables/         <- committed manuscript tables (Supplementary_Table_3, Supplementary Data 1-2, …)
@@ -44,14 +43,14 @@ jupyter lab notebooks/nanoPhos_Figure2.ipynb
 All reproduction notebooks live in [`notebooks/`](notebooks/):
 
 - **`nanoPhos_Figure{2–5}.ipynb`** and **`nanoPhos_Suppl_Figure{1–5}.ipynb`** —
-  the revised analysis, with strict per-run Class I localization filtering
-  (probability ≥ 0.75), used for the *Nature Communications* revision. These reproduce
-  the published main and supplementary figures.
+  the analysis reported in the manuscript, with strict per-run Class I localization
+  filtering (probability ≥ 0.75). These reproduce the main and supplementary figures.
 
 The DIA-NN vs Spectronaut comparison (Supplementary Figure 3i–l) is part of
 `nanoPhos_Suppl_Figure3.ipynb`. It reads the DIA-NN reports from
-`pride_data/analysis_data/revision/figure3/diann/`; the README in that folder of the
-deposit describes the search settings.
+`pride_data/analysis/figure3/diann/`; the deposit README describes the search settings,
+and the complete DIA-NN output and predicted library are in
+`search/figure3/diann_output_sorted_hela_cells/` of the deposit.
 
 Exploratory and superseded notebooks, including the original-submission (`v00`)
 versions, are kept locally under `archive/` and are not version-controlled.
@@ -65,7 +64,7 @@ versions, are kept locally under `archive/` and are not version-controlled.
 | `data/` | Small reference CSVs cited by individual figures |
 | `pride_data/` | Search-engine reports from the data deposit (gitignored, large) |
 | `archive/` | Older versions, exploratory notebooks, deprecated work (gitignored) |
-| `notebooks/` | Reproduction notebooks: one per main figure (`nanoPhos_Figure{2–5}.ipynb`) and per supplementary figure (`nanoPhos_Suppl_Figure{1–5}.ipynb`), revised analysis |
+| `notebooks/` | Reproduction notebooks: one per main figure (`nanoPhos_Figure{2–5}.ipynb`) and per supplementary figure (`nanoPhos_Suppl_Figure{1–5}.ipynb`) |
 | `tables/` | Committed manuscript tables (`Supplementary_Table_3.xlsx`, hydrophobic-peptide supplementary table, `Supplementary_Data_1.xlsx`, `Supplementary_Data_2.xlsx`) |
 
 > **Note:** `src/alphaquant/` and `docs/phosphonetworks/` are large vendored/reference
@@ -115,7 +114,7 @@ Supplementary Table 2 (SIGNOR EGFR-pathway coverage) with `python src/signor_cov
 
 ## Citation
 
-Manuscript in revision. Citation will be added once accepted.
+Citation will be added on publication.
 
 ## Contact
 

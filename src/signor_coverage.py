@@ -21,7 +21,7 @@ from core import process_ptm_site_report
 CLASS_I_CUTOFF = 0.75
 INPUTS = [10, 20, 50, 100, 200, 500, 1000]
 SIGNOR = Path('data/SIGNOR-EGF_25_06_26.tsv')
-EGF_REPORTS = Path('pride_data/analysis_data/revision/figure2')
+EGF_REPORTS = Path('pride_data/analysis/figure2')
 OUT = Path('tables/Supplementary_Table_2.xlsx')
 PROC_META = {'Protein_group', 'Gene_group', 'PTM_0_aa', 'PTM_pos', 'PTM_mult123',
              'PTM_flank', 'PTM_Collapse_key', 'PTM_localization', 'UPD_seq'}
@@ -52,7 +52,7 @@ def covered_sites(report, keys):
 def main():
     sites = pathway_sites()
     keys = set(zip(sites['IDB'], sites['aa'], sites['pos']))
-    covered = {ng: covered_sites(next(EGF_REPORTS.glob(f'*withEGF*_{ng}ng_Report.tsv')), keys) for ng in INPUTS}
+    covered = {ng: covered_sites(next(EGF_REPORTS.glob(f'[0-9]*withEGF*_{ng}ng_Report.tsv')), keys) for ng in INPUTS}
 
     matrix = pd.DataFrame({'substrate': sites['ENTITYB'], 'acc': sites['IDB'],
                            'site': sites['aa'] + sites['pos'].astype(str), 'aa': sites['aa'],

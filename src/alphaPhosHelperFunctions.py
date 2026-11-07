@@ -19,7 +19,7 @@ def prepare_ID_datasets (data, nreps = 3, loc_col = 'PTM_localization', loc_tres
     If ``loc_matrices`` is provided (list of per-(site, run) loc DataFrames from
     ``PeptideCollapse.site_localization_per_run``, parallel to ``data``), Class I
     is counted strictly per-(site, run): a cell is Class I iff its intensity is
-    non-NaN AND its per-run loc prob >= ``loc_treshold``. This is the R2-compliant
+    non-NaN AND its per-run loc prob >= ``loc_treshold``. This is the per-run Class I
     metric.
 
     If ``loc_matrices`` is None, falls back to the legacy dataset-wide-max filter

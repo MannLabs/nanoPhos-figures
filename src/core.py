@@ -266,8 +266,8 @@ def count_sites_per_sample_ptm_report(df, dedupe=True, sty_only=True,
                                a singly- vs multiply-phosphorylated peptide (M1 vs
                                M2) is ONE site, not several. This is the convention
                                for reporting localized phosphosites (Olsen 2006,
-                               Bekker-Jensen 2020, uPhos) and what Reviewer 2 asks
-                               for. Set False to count multiplicity-resolved features
+                               Bekker-Jensen 2020, uPhos).
+                               Set False to count multiplicity-resolved features
                                (quantitative entities, e.g. for QC) — but that is not
                                a "unique phosphosite" count and inflates the depth
                                metric by ~10%.
@@ -368,7 +368,7 @@ def sample_condition(col):
     """Classify a Spectronaut sample/column name by EGF condition.
 
     Returns 'withegf', 'woegf', or 'other'. Use this to split counts by the
-    column's own name rather than the source filename — the revision
+    column's own name rather than the source filename — the
     ``withEGF_repeat`` reports carry both withEGF and woEGF columns in one file,
     so filename-based bucketing mixes conditions. Case-insensitive.
     """

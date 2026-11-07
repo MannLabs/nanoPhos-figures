@@ -26,9 +26,9 @@ CLASS_I_CUTOFF = 0.75
 OUT_DIR = Path('tables')
 PROC_META = {'Protein_group', 'Gene_group', 'PTM_0_aa', 'PTM_pos', 'PTM_mult123',
              'PTM_flank', 'PTM_Collapse_key', 'PTM_localization', 'UPD_seq'}
-LUNG_REPORT = Path('pride_data/analysis_data/revision/figure4')
+LUNG_REPORT = Path('pride_data/analysis/figure4')
 LUNG_LEGEND = Path('tables/Supplementary_Table_3.xlsx')
-NEURON_REPORT = Path('pride_data/analysis_data/revision/figure5')
+NEURON_REPORT = Path('pride_data/analysis/figure5')
 NEURON_COND = Path('data/pDVP_neurons_conditionSetup.tsv')
 LUNG_TYPE = {'tumor (adenocarcinoma)': 'AC', 'normal lung': 'H'}
 
@@ -118,14 +118,14 @@ def write(path, title, source, sites, samples):
 
 
 def main():
-    lung_src = next(LUNG_REPORT.glob('*nanoPhos_lungAC_Report.tsv'))
+    lung_src = next(LUNG_REPORT.glob('[0-9]*nanoPhos_lungAC_Report.tsv'))
     sites, samples = site_matrix(lung_src, lung_samples)
     write(OUT_DIR / 'Supplementary_Data_1.xlsx',
           'Supplementary Data 1. Class I phosphosites in laser-microdissected FFPE lung adenocarcinoma (AC) '
           'and adjacent healthy-appearing lung (H), all microdissected samples (Fig. 4h-l).',
           lung_src, sites, samples)
 
-    neuron_src = next(NEURON_REPORT.glob('*Whisper80_Report.tsv'))
+    neuron_src = next(NEURON_REPORT.glob('[0-9]*Whisper80_Report.tsv'))
     sites, samples = site_matrix(neuron_src, neuron_samples)
     write(OUT_DIR / 'Supplementary_Data_2.xlsx',
           'Supplementary Data 2. Class I phosphosites in laser-microdissected excitatory and inhibitory '

@@ -6,6 +6,7 @@ processed_data/
 archive/
 cc_runs/
 source_data/
+pride_data/
 
 # --- Python venv living at repo root (this directory IS a venv) ---
 Include/
@@ -60,7 +61,7 @@ docs/*
 # --- Session scratch / working files (root-level _*.txt) ---
 /_*.txt
 
-# --- Notebooks: the canonical, reviewer-facing copies live in notebooks/ (tracked).
+# --- Notebooks: the canonical copies live in notebooks/ (tracked).
 #     Root-level *.ipynb are local working scratch; the DIA-NN comparison and all
 #     prior versions are kept under archive/ (gitignored). Nothing is deleted. ---
 /*.ipynb

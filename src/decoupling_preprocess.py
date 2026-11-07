@@ -1,4 +1,4 @@
-"""Preprocessing for the SPEC / enrichment decoupling experiment (Reviewer 1 novelty).
+"""Preprocessing for the SPEC / enrichment decoupling experiment.
 
 Each condition (branch x input) has two Spectronaut reports in the folder:
   * ``{ts}_{branch}_{ng}ng_Report.tsv``         precursor-level (R.FileName, EG.PrecursorId,
@@ -168,7 +168,7 @@ def summarize(df: pd.DataFrame) -> pd.DataFrame:
 def contrasts(df: pd.DataFrame) -> pd.DataFrame:
     """Pairwise branch contrasts per input, each isolating one factor.
 
-    classic/hybrid isolates the enrichment (SPEC held constant) - the direct R1 answer.
+    classic/hybrid isolates the enrichment (SPEC held constant).
     Ratios for depth/precursors; selectivity as a percentage-point difference.
     """
     CTR = [('classic', 'hybrid', 'enrichment (SPEC held constant)'),

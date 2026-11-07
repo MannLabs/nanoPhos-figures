@@ -248,9 +248,8 @@ class PeptideCollapse:
             "per_run" (default, bulletproof): mask the per-(site, run) intensity
             cell whenever the site's localization probability in that specific
             run is below ``cutoff``. Sites with zero remaining quant cells are
-            dropped. This matches Reviewer 2's literal request — pre-filtering
-            site detections per run before any wide-format quantitative
-            comparison.
+            dropped, i.e. site detections are pre-filtered per run before any
+            wide-format quantitative comparison.
 
             "global_max" (legacy v3 / Hogrebe et al. plugin convention):
             collapse localization to a dataset-wide max per site, then apply a
@@ -514,7 +513,7 @@ class PeptideCollapse:
 
         A site is Class I in a given run when (a) its quantitative value is
         non-NaN in that run AND (b) its per-(site, run) localization probability
-        is >= cutoff. This is the per-run depth metric Reviewer 2 asked for —
+        is >= cutoff. This is the per-run depth metric —
         it answers "how many sites are confidently localized in *this specific
         run*?" rather than "how many sites are confidently localized somewhere
         in the dataset and detected in this run?"
