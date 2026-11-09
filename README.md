@@ -21,7 +21,9 @@ Then set up the data layout (all paths in the notebooks are relative to the repo
 ```
 pride_data/     <- the analysis/ and metadata/ folders of the MassIVE deposit, unchanged
                    (pride_data/analysis/<figure2|figure3|figure4|figure5|suppl_figure2>/,
-                    pride_data/metadata/fasta/); gitignored
+                    pride_data/metadata/fasta/); gitignored. The deposit also holds
+                   analysis/figure2/selectivity_salt_optimization.tsv as a separate file
+                   (Supplementary Figure 1a); put it into pride_data/analysis/figure2/
 data/           <- committed reference data (funscores, mouse_kegg_annotation,
                    *_conditionSetup.tsv) — already in the repo
 tables/         <- committed manuscript tables (Supplementary_Table_3, Supplementary Data 1-2, …)
