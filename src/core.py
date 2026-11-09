@@ -249,7 +249,8 @@ def _hex_to_rgba(hex_color, alpha):
 
 def count_sites_per_sample_ptm_report(df, dedupe=True, sty_only=True,
                                        phospho_only=True, treat_zero_as_missing=True,
-                                       collapse_multiplicity=True, enforce_cutoff=0.75):
+                                       collapse_multiplicity=True, enforce_cutoff=0.75,
+                                       return_sets=False):
     """Per-sample strict Class I phosphosite count for a Spectronaut PTM Site Report.
 
     Self-defending counter — applies all corrections internally so the
@@ -280,6 +281,9 @@ def count_sites_per_sample_ptm_report(df, dedupe=True, sty_only=True,
                                against. Pass None to fall back to trusting the
                                export's 'Filtered' masking.
       - treat_zero_as_missing  PTM.Quantity == 0 cells are NaN-equivalent
+      - return_sets            return the set of site keys per sample instead of its
+                               size (e.g. for cumulative counts across runs: union
+                               of the sets). Requires dedupe.
 
     A cell is "Class I in this run" when, after filters, its PTM.Quantity value is
     numeric, non-NaN, (optionally) non-zero, and its paired SiteProbability meets
@@ -288,7 +292,7 @@ def count_sites_per_sample_ptm_report(df, dedupe=True, sty_only=True,
 
     Returns
     -------
-    dict[clean_sample_name -> int]
+    dict[clean_sample_name -> int], or dict[clean_sample_name -> set] with return_sets
     """
     ###
     import re
@@ -357,7 +361,10 @@ def count_sites_per_sample_ptm_report(df, dedupe=True, sty_only=True,
         if not collapse_multiplicity:
             site_key = site_key + '|M' + df_used['PTM.Multiplicity'].astype(str)
         for col in quant_cols:
-            counts[_clean(col, 'Quantity')] = int(site_key[_valid_mask(col)].nunique())
+            keys = set(site_key[_valid_mask(col)])
+            counts[_clean(col, 'Quantity')] = keys if return_sets else len(keys)
+    elif return_sets:
+        raise ValueError("return_sets needs dedupe and the PG.Genes/PTM.SiteAA/PTM.SiteLocation columns.")
     else:
         for col in quant_cols:
             counts[_clean(col, 'Quantity')] = int(_valid_mask(col).sum())
